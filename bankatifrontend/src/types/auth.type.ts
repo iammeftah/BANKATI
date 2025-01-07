@@ -16,3 +16,12 @@ export type LoginCredentials = {
     phone: string;
     password: string;
 };
+
+
+export interface Agent extends User {
+    placeId: string;
+    pieceNumber: string;
+    birthDate: string;
+    address: string;
+    immatriculationNumber: string;
+}

@@ -20,4 +20,12 @@ public class UserService implements UserDetailsService {
         return userRepository.findByPhone(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
+    public boolean checkIfEmailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public boolean checkIfPhoneExists(String phone) {
+        return userRepository.existsByPhone(phone);
+    }
 }
