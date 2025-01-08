@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import wav.hmed.authentication.dto.AuthenticationRequest;
 import wav.hmed.authentication.dto.AuthenticationResponse;
+import wav.hmed.authentication.dto.PasswordUpdateRequest;
 import wav.hmed.authentication.dto.RegisterRequest;
 import wav.hmed.authentication.service.AuthenticationService;
 
@@ -36,5 +37,13 @@ public class AuthenticationController {
             @RequestBody AuthenticationRequest request
     ) {
         return ResponseEntity.ok(service.authenticate(request));
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<String> updatePassword(
+            @RequestBody PasswordUpdateRequest request
+    ) {
+        service.updatePassword(request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.ok("Password updated successfully");
     }
 }

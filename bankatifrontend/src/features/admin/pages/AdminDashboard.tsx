@@ -1,7 +1,7 @@
 // AdminDashboard.tsx
 import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Users, UserPlus, History, Activity } from 'lucide-react';
+import { Users, UserPlus, History, Activity, Lock } from 'lucide-react';
 
 interface SidebarProps {
     activeItem: string;
@@ -30,6 +30,12 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, setActiveItem }) => {
             section: 'History',
             items: [
                 { id: 'activity-log', label: 'Activity Log', icon: <Activity size={20} />, path: '/admin/activity' }
+            ]
+        },
+        {
+            section: 'Update Password',
+            items: [
+                { id: 'update-password', label: 'Update password', icon: <Lock size={20} />, path: '/update-password' }
             ]
         }
     ];

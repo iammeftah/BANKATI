@@ -1,16 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedRoute } from './components/security/ProtectedRoute';
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
-import AdminLayout from './components/layout/AdminLayout';
-import AgentLayout from "./components/layout/AgentLayout";
-import AgentList from './pages/admin/AgentList';
-import AddAgent from './pages/admin/AddAgent';
-import ClientList from './pages/admin/ClientList';
-import AgentDashboard from './pages/AgentDashboard';
-import { ClientDashboard } from './pages/ClientDashboard';
+import AdminLayout from './features/admin/components/AdminLayout';
+import AgentLayout from "./features/agent/components/AgentLayout";
+import AgentList from './features/admin/pages/AgentList';
+import AddAgent from './features/admin/pages/AddAgent';
+import ClientList from './features/admin/pages/ClientList';
+import AgentDashboard from './features/agent/pages/AgentDashboard';
+import { ClientDashboard } from './features/client/pages/ClientDashboard';
 import { Header } from "./components/layout/Header";
-import AddClient from "./pages/agent/AddClient";
+import AddClient from "./features/agent/pages/AddClient";
+import UpdatePassword from "./components/common/forms/UpdatePassword";
 
 function App() {
     return (
@@ -21,6 +22,9 @@ function App() {
                     {/* Public Routes */}
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<LoginPage />} />
+                    <Route path="/update-password" element={<UpdatePassword />} />
+
+
 
                     {/* Admin Routes */}
                     <Route

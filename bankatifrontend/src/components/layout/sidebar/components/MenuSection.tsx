@@ -1,5 +1,5 @@
 import React from 'react';
-import {MenuSectionProps} from "./type";
+import {MenuSectionProps} from "../types/type";
 
 export const MenuSection: React.FC<MenuSectionProps> = ({
                                                             title,

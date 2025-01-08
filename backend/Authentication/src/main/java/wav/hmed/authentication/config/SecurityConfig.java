@@ -49,9 +49,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/register/**", "/api/auth/authenticate").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").permitAll()
                         .requestMatchers("/api/agent/**").permitAll()
+                        .requestMatchers("/api/auth/update-password").authenticated()  // Requires authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess

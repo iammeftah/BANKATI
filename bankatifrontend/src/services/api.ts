@@ -9,5 +9,19 @@ export const api = axios.create({
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     },
-    withCredentials: true // Add this
+    withCredentials: false  // Change this to false since we're using JWT
 });
+
+// Add a request interceptor to add the JWT token
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);

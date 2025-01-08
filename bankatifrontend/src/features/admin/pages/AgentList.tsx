@@ -1,8 +1,8 @@
 // AgentList.tsx
 import React, { useState, useEffect } from 'react';
 import { Edit, Trash2 } from 'lucide-react';
-import { api } from "../../services/api";
-import { Agent } from '../../types/auth.type';
+import { api } from "../../../services/api";
+import { Agent } from '../../../types/auth.type';
 
 const AgentList: React.FC = () => {
     const [agents, setAgents] = useState<Agent[]>([]);

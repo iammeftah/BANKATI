@@ -1,9 +1,10 @@
 // src/components/sidebar/AdminSidebar.tsx
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import { AgentSpaceMenu } from './menu/AgentSpaceMenu';
 import { ClientSpaceMenu } from './menu/ClientSpaceMenu';
 import { HistoryMenu } from './menu/HistoryMenu';
+import { Password } from './menu/Password';
 
 export const AdminSidebar: React.FC = () => {
     const location = useLocation();
@@ -16,6 +17,8 @@ export const AdminSidebar: React.FC = () => {
                     <AgentSpaceMenu currentPath={location.pathname} />
                     <ClientSpaceMenu currentPath={location.pathname} />
                     <HistoryMenu currentPath={location.pathname} />
+                    <Password currentPath={location.pathname} />
+
                 </div>
             </div>
         </div>

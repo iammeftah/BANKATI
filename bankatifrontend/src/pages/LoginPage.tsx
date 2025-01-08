@@ -13,6 +13,8 @@ export const LoginPage = () => {
         setError('');
         try {
             const response = await authService.login(credentials);
+            localStorage.setItem('token', response.token);
+
             // Check if we have a valid user role before navigating
             if (response?.user?.role) {
                 switch (response.user.role) {

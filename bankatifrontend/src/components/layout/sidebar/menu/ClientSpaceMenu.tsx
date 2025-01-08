@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, UserMinus } from 'lucide-react';
-import { MenuSection } from './MenuSection';
-import { MenuProps } from './type';
+import { MenuSection } from '../components/MenuSection';
+import { MenuProps } from '../types/type';
 
 export const ClientSpaceMenu: React.FC<MenuProps> = ({ currentPath }) => {
     const navigate = useNavigate();
