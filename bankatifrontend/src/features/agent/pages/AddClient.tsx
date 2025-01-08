@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from "../../../services/api"
+import {emailService} from "../../../services/email.service";
 
 interface ClientFormData {
     firstName: string
@@ -103,30 +104,29 @@ export default function AddClient() {
             const response = await api.post<ApiResponse>('/agent/clients', submitData)
 
             if (response.data.temporaryPassword) {
-                // TODO: Implement email service to send temporary password
-                // This should be implemented using a dedicated mailing service
-                // Expected implementation:
-                // await mailService.sendTemporaryPassword({
-                //     to: formData.email,
-                //     tempPassword: response.data.temporaryPassword,
-                //     firstName: formData.firstName,
-                //     lastName: formData.lastName
-                // });
-
-                // Keep the alert for now as a fallback/development purposes
-                alert(`Temporary password for client: ${response.data.temporaryPassword}`)
+                try {
+                    await emailService.sendEmail(
+                        formData.email,
+                        "Your Temporary Password",
+                        `Dear ${formData.firstName} ${formData.lastName},\n\nYour temporary password is: ${response.data.temporaryPassword}\n\nPlease change this password upon your first login.\n\nBest regards,\nYour App Team`
+                    );
+                    console.log('Temporary password email sent successfully');
+                } catch (error) {
+                    console.error('Error sending temporary password email:', error);
+                    setError('Failed to send email with temporary password. Please contact support.');
+                }
             }
 
-            navigate('/agent/clients')
+            navigate('/agent/clients');
         } catch (err) {
-            const apiError = err as ApiError
+            const apiError = err as ApiError;
             setError(
                 apiError.response?.data ||
                 apiError.message ||
                 'Une erreur est survenue lors de la création du client'
-            )
+            );
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
     }
 
