@@ -98,20 +98,81 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/clients/{id}")
+    public ResponseEntity<?> deleteClient(@PathVariable Long id) {
+        userRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/agents/{id}")
-    public ResponseEntity<User> updateAgent(@PathVariable Long id, @RequestBody RegisterRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Agent not found"));
+    public ResponseEntity<?> updateAgent(@PathVariable Long id, @RequestBody RegisterRequest request) {
+        try {
+            // Find the agent
+            Agent agent = (Agent) userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Agent not found with id: " + id));
 
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
-        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
+            // Check if email is being changed and if new email is already in use
+            if (!agent.getEmail().equals(request.getEmail())) {
+                if (userRepository.existsByEmail(request.getEmail())) {
+                    return ResponseEntity.badRequest().body("Email already in use");
+                }
+            }
+
+            // Check if phone is being changed and if new phone is already in use
+            if (!agent.getPhone().equals(request.getPhone())) {
+                if (userRepository.existsByPhone(request.getPhone())) {
+                    return ResponseEntity.badRequest().body("Phone number already in use");
+                }
+            }
+
+            // Validate required fields
+            if (request.getFirstName() == null || request.getLastName() == null ||
+                    request.getEmail() == null || request.getPhone() == null) {
+                return ResponseEntity.badRequest().body("Required fields cannot be null");
+            }
+
+            // Update basic fields
+            agent.setFirstName(request.getFirstName());
+            agent.setLastName(request.getLastName());
+            agent.setEmail(request.getEmail());
+            agent.setPhone(request.getPhone());
+
+            // Update optional fields if provided
+            if (request.getAddress() != null) {
+                agent.setAddress(request.getAddress());
+            }
+            if (request.getBirthDate() != null) {
+                agent.setBirthDate(request.getBirthDate());
+            }
+            if (request.getIdentityType() != null) {
+                try {
+                    agent.setIdentityType(Agent.IdentityType.valueOf(request.getIdentityType()));
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body("Invalid identity type");
+                }
+            }
+            if (request.getIdentityNumber() != null) {
+                agent.setIdentityNumber(request.getIdentityNumber());
+            }
+            if (request.getRegistrationNumber() != null) {
+                agent.setRegistrationNumber(request.getRegistrationNumber());
+            }
+            if (request.getPatentNumber() != null) {
+                agent.setPatentNumber(request.getPatentNumber());
+            }
+            if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+                agent.setPassword(passwordEncoder.encode(request.getPassword()));
+            }
+
+            // Save and return the updated agent
+            User updatedAgent = userRepository.save(agent);
+            logger.info("Successfully updated agent with ID: {}", updatedAgent.getId());
+            return ResponseEntity.ok(updatedAgent);
+
+        } catch (Exception e) {
+            logger.error("Error updating agent: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        return ResponseEntity.ok(userRepository.save(user));
     }
 
 

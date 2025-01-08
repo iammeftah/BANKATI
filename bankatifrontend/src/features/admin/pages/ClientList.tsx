@@ -1,36 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Trash2 } from 'lucide-react';
 import { api } from '../../../services/api';
-import { useNavigate } from 'react-router-dom';
-
-interface Client {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-}
+import { Client } from '../../../types/auth.type';
+import { ClientEditModal } from "../../../components/common/forms/EditModal";
 
 interface ClientListProps {
-    userRole: 'admin' | 'agent';  // Add props interface to specify user role
+    userRole: 'admin' | 'agent';
 }
 
-const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
+export const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
     const [clients, setClients] = useState<Client[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isDeleting, setIsDeleting] = useState<number | null>(null);
-    const navigate = useNavigate();
+    const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    // Get the base endpoint based on user role
     const getBaseEndpoint = () => {
         return userRole === 'admin' ? '/admin/clients' : '/agent/clients';
     };
 
     useEffect(() => {
         fetchClients();
-    }, [userRole]); // Add userRole as dependency to refetch when role changes
+    }, [userRole]);
 
     const fetchClients = async () => {
         try {
@@ -39,16 +32,18 @@ const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
             setClients(response.data);
             setError('');
         } catch (err: any) {
-            if (err.response?.status === 403) {
-                setError('You do not have permission to view clients');
-                setTimeout(() => navigate('/'), 2000);
-            } else {
-                setError('Failed to fetch clients');
-            }
+            setError(err.response?.status === 403
+                ? 'You do not have permission to view clients'
+                : 'Failed to fetch clients');
             console.error('Error fetching clients:', err);
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleEdit = (client: Client) => {
+        setSelectedClient(client);
+        setIsEditModalOpen(true);
     };
 
     const handleDeactivate = async (id: number) => {
@@ -57,16 +52,13 @@ const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
                 setIsDeleting(id);
                 await api.delete(`${getBaseEndpoint()}/${id}`);
                 await fetchClients();
-                setIsDeleting(null);
             } catch (err: any) {
-                if (err.response?.status === 403) {
-                    setError('You do not have permission to deactivate clients');
-                    setTimeout(() => setError(''), 3000);
-                } else {
-                    setError('Error deactivating client');
-                    setTimeout(() => setError(''), 3000);
-                }
+                setError(err.response?.status === 403
+                    ? 'You do not have permission to deactivate clients'
+                    : 'Error deactivating client');
                 console.error('Error deactivating client:', err);
+                setTimeout(() => setError(''), 3000);
+            } finally {
                 setIsDeleting(null);
             }
         }
@@ -75,7 +67,7 @@ const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
     const filteredClients = clients.filter(client =>
         `${client.firstName} ${client.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
         client.phone.includes(searchTerm) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase())
+        (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     if (loading) {
@@ -85,6 +77,17 @@ const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
             </div>
         );
     }
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString();
+    };
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount);
+    };
 
     return (
         <div className="w-full">
@@ -96,52 +99,57 @@ const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
 
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Client List</h1>
-                <div className="flex space-x-4">
-                    <input
-                        type="text"
-                        placeholder="Search clients..."
-                        className="px-4 py-2 border rounded-lg w-64"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
+                <input
+                    type="text"
+                    placeholder="Search by name, email, or phone"
+                    className="px-4 py-2 border rounded-lg w-64"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
             </div>
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="bg-white shadow-md rounded-lg overflow-x-auto">
                 <table className="min-w-full">
                     <thead className="bg-gray-50">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Name
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Email
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Phone
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                     {filteredClients.map((client) => (
                         <tr key={client.id}>
+                            <td className="px-6 py-4 whitespace-nowrap">{`${client.firstName} ${client.lastName}`}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{client.email}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{client.phone}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                {`${client.firstName} ${client.lastName}`}
+                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    {client.ceilingType}
+                                </span>
                             </td>
+                            <td className="px-6 py-4 whitespace-nowrap">{formatCurrency(client.balance)}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                                {client.email}
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    ${client.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                                    client.status === 'INACTIVE' ? 'bg-red-100 text-red-800' :
+                                        'bg-yellow-100 text-yellow-800'}`}>
+                                    {client.status}
+                                </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {client.phone}
-                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">{formatDate(client.createdAt)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{formatDate(client.updatedAt)}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex space-x-2">
                                     <button
                                         className="text-blue-600 hover:text-blue-800"
-                                        onClick={() => navigate(`${getBaseEndpoint()}/edit/${client.id}`)}
+                                        onClick={() => handleEdit(client)}
                                     >
                                         <Edit size={20} />
                                     </button>
@@ -163,8 +171,17 @@ const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
                     </tbody>
                 </table>
             </div>
+
+            <ClientEditModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedClient(null);
+                }}
+                client={selectedClient}
+                onUpdate={fetchClients}
+            />
         </div>
     );
 };
 
-export default ClientList;

@@ -3,6 +3,8 @@ package wav.hmed.authentication.dto;
 import wav.hmed.authentication.entity.Client;
 import wav.hmed.authentication.entity.Role;
 
+import java.util.Date;
+
 public class RegisterRequest {
     private String firstName;
     private String lastName;
@@ -21,6 +23,25 @@ public class RegisterRequest {
     // Added Client-specific fields
     private Client.CeilingType ceilingType;
     private Double balance;
+    private Date createdAt;
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    private Date updatedAt;
 
     // Default constructor
     public RegisterRequest() {

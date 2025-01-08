@@ -5,9 +5,14 @@ export const authService = {
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
         try {
             const response = await api.post<AuthResponse>('/auth/authenticate', credentials);
+            console.log('Auth Response:', response.data); // Add this line to debug
+
             if (response.data.token && response.data.user) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
+                localStorage.setItem('userId', response.data.user.id.toString()); // Convert number to string
+                console.log('Stored userId:', localStorage.getItem('userId')); // Add this line to debug
+
                 return response.data;
             }
             throw new Error('Invalid response format');
@@ -21,6 +26,9 @@ export const authService = {
     logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+
+        localStorage.removeItem('userId');
+
     },
 
     getCurrentUser() {

@@ -9,7 +9,21 @@ interface ClientFormData {
     lastName: string
     email: string
     phone: string
-    ceilingType: string  // Changed from accountType to ceilingType to match backend
+    ceilingType: string
+}
+
+interface ApiResponse {
+    client?: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string;
+        ceilingType: string;
+        createdAt: string;  // Added type for createdAt
+        updatedAt: string;  // Added type for updatedAt
+    };
+    temporaryPassword?: string;
 }
 
 interface ApiError {
@@ -32,7 +46,7 @@ export default function AddClient() {
         lastName: '',
         email: '',
         phone: '',
-        ceilingType: 'HSSAB1'  // Changed from accountType to ceilingType
+        ceilingType: 'HSSAB1'
     })
     const [error, setError] = useState<string>('')
     const [emailExists, setEmailExists] = useState(false)
@@ -81,17 +95,25 @@ export default function AddClient() {
         }
 
         try {
-            // Transform the data to match backend expectations
             const submitData = {
                 ...formData,
-                ceilingType: formData.ceilingType // Ensure we're using ceilingType
+                ceilingType: formData.ceilingType
             }
 
-            const response = await api.post('/agent/clients', submitData)
+            const response = await api.post<ApiResponse>('/agent/clients', submitData)
 
-            // Check if we got back a temporary password
             if (response.data.temporaryPassword) {
-                // You might want to show this to the agent
+                // TODO: Implement email service to send temporary password
+                // This should be implemented using a dedicated mailing service
+                // Expected implementation:
+                // await mailService.sendTemporaryPassword({
+                //     to: formData.email,
+                //     tempPassword: response.data.temporaryPassword,
+                //     firstName: formData.firstName,
+                //     lastName: formData.lastName
+                // });
+
+                // Keep the alert for now as a fallback/development purposes
                 alert(`Temporary password for client: ${response.data.temporaryPassword}`)
             }
 
@@ -110,14 +132,11 @@ export default function AddClient() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target
-
-        // Update the form data
         setFormData(prev => ({
             ...prev,
             [name === 'accountType' ? 'ceilingType' : name]: value
         }))
 
-        // Validate email and phone as they change
         if (name === 'email') {
             checkEmail(value)
         }

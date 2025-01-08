@@ -1,12 +1,14 @@
-// AgentList.tsx
 import React, { useState, useEffect } from 'react';
 import { Edit, Trash2 } from 'lucide-react';
 import { api } from "../../../services/api";
 import { Agent } from '../../../types/auth.type';
+import { AgentEditModal } from '../../../components/common/forms/EditModal';
 
-const AgentList: React.FC = () => {
+export const AgentList: React.FC = () => {
     const [agents, setAgents] = useState<Agent[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         fetchAgents();
@@ -15,6 +17,20 @@ const AgentList: React.FC = () => {
     const fetchAgents = async () => {
         try {
             const response = await api.get<Agent[]>('/admin/agents');
+            setAgents(response.data);
+        } catch (error) {
+            console.error('Error fetching agents:', error);
+        }
+    };
+
+    const handleEdit = (agent: Agent) => {
+        setSelectedAgent(agent);
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdate = async () => {
+        try {
+            const response = await api.get('/admin/agents');
             setAgents(response.data);
         } catch (error) {
             console.error('Error fetching agents:', error);
@@ -50,13 +66,19 @@ const AgentList: React.FC = () => {
                 />
             </div>
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="bg-white shadow-md rounded-lg overflow-x-auto">
                 <table className="min-w-full">
                     <thead className="bg-gray-50">
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Birth Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Number</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registration #</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patent #</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                     </thead>
@@ -66,9 +88,18 @@ const AgentList: React.FC = () => {
                             <td className="px-6 py-4 whitespace-nowrap">{`${agent.firstName} ${agent.lastName}`}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{agent.email}</td>
                             <td className="px-6 py-4 whitespace-nowrap">{agent.phone}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{agent.birthDate}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{agent.address}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{agent.identityType}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{agent.identityNumber}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{agent.registrationNumber}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">{agent.patentNumber}</td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex space-x-2">
-                                    <button className="text-blue-600 hover:text-blue-800">
+                                    <button
+                                        className="text-blue-600 hover:text-blue-800"
+                                        onClick={() => handleEdit(agent)}
+                                    >
                                         <Edit size={20} />
                                     </button>
                                     <button
@@ -84,8 +115,16 @@ const AgentList: React.FC = () => {
                     </tbody>
                 </table>
             </div>
+
+            <AgentEditModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedAgent(null);
+                }}
+                agent={selectedAgent}
+                onUpdate={fetchAgents}
+            />
         </div>
     );
 };
-
-export default AgentList;

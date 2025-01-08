@@ -2,6 +2,8 @@ package wav.hmed.authentication.entity;
 
 import jakarta.persistence.*;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "clients")
 @PrimaryKeyJoinColumn(name = "user_id")
@@ -29,6 +31,40 @@ public class Client extends User {
             return limit;
         }
     }
+
+    public enum Status {
+        ACTIVE ,INACTIVE ,PENDING
+    }
+
+    public Date createdAt;
+    public Date updatedAt;
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     // Getters and Setters
     public CeilingType getCeilingType() {

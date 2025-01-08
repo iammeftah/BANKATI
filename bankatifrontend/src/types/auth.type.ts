@@ -19,15 +19,17 @@ export type LoginCredentials = {
 
 
 export interface Agent extends User {
-    placeId: string;
-    pieceNumber: string;
+    identityType: 'CIN' | 'PASSPORT' | 'RESIDENT_PERMIT';
+    identityNumber: string;
     birthDate: string;
     address: string;
-    immatriculationNumber: string;
+    registrationNumber: string;
+    patentNumber: string;
 }
 
+
 export interface Client extends User {
-    accountType: 'HSSAB1' | 'HSSAB2' | 'HSSAB3';
+    ceilingType: 'HSSAB1' | 'HSSAB2' | 'HSSAB3';  // Changed from accountType
     balance: number;
     status: 'ACTIVE' | 'INACTIVE' | 'PENDING';
     createdAt: string;
