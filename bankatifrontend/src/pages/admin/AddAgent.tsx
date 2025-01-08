@@ -106,7 +106,17 @@ const AddAgent = () => {
 
         try {
             // Submission logic here
-            const { confirmEmail, ...submissionData } = formData;
+
+            const generatedPassword = generateSecurePassword();
+
+            console.log("Generated password: ", generatedPassword);
+
+            // Remove confirmEmail and create submission data
+            const { confirmEmail, ...restData } = formData;
+            const submissionData: AgentSubmissionData = {
+                ...restData,
+                password: generatedPassword
+            };
 
             await api.post('/admin/agents', submissionData);
 
