@@ -79,7 +79,7 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
         if (role != null) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
+            authorities.add(new SimpleGrantedAuthority(role.name()));
             // Add this debug line
             System.out.println("Generated authorities for user: " + authorities);
         }

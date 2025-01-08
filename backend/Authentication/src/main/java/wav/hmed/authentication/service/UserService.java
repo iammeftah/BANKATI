@@ -36,4 +36,13 @@ public class UserService implements UserDetailsService {
     public String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+
+    public boolean existsById(Long id) {
+        return userRepository.existsById(id);
+    }
+
+    // Implement deleteById
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
+    }
 }

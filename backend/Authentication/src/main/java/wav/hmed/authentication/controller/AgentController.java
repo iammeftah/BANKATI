@@ -145,16 +145,17 @@ public class AgentController {
     @DeleteMapping("/clients/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
         try {
-            if (!clientRepository.existsById(id)) {
+            if (!userService.existsById(id)) { // Use userService for checking existence
                 return ResponseEntity.notFound().build();
             }
-            clientRepository.deleteById(id);
+            userService.deleteById(id); // Use userService to delete
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Error deleting client {}: {}", id, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }
+
 
     @GetMapping("/check-email")
     public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {

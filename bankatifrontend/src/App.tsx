@@ -40,7 +40,7 @@ function App() {
                             <Route index element={<AgentList />} />
                             <Route path="add" element={<AddAgent />} />
                         </Route>
-                        <Route path="clients" element={<ClientList />} />
+                        <Route path="clients" element={<ClientList userRole="admin" />} />
                     </Route>
 
                     {/* Agent Routes - Separate from Admin routes */}
@@ -54,7 +54,7 @@ function App() {
                     >
                         <Route index element={<AgentDashboard />} />
                         <Route path="clients">
-                            <Route index element={<ClientList />} />
+                            <Route index element={<ClientList userRole="agent" />} />
                             <Route path="add" element={<AddClient />} />
                         </Route>
                     </Route>

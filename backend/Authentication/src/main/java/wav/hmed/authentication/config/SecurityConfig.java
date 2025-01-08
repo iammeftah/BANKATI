@@ -49,12 +49,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register/**", "/api/auth/authenticate").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").permitAll()
-                        .requestMatchers("/api/agent/**").permitAll()
-                        .requestMatchers("/api/auth/update-password").authenticated()  // Requires authentication
-                        .anyRequest().authenticated()
+//                        // Public endpoints (no authentication needed)
+//                        .requestMatchers("/api/auth/register/**", "/api/auth/authenticate").permitAll()
+//
+//                        // All other endpoints just need authentication without specific role
+//                        .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

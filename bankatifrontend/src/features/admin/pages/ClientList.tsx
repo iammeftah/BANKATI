@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Trash2 } from 'lucide-react';
 import { api } from '../../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 interface Client {
     id: number;
@@ -10,24 +11,40 @@ interface Client {
     phone: string;
 }
 
-const ClientList = () => {
+interface ClientListProps {
+    userRole: 'admin' | 'agent';  // Add props interface to specify user role
+}
+
+const ClientList: React.FC<ClientListProps> = ({ userRole }) => {
     const [clients, setClients] = useState<Client[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isDeleting, setIsDeleting] = useState<number | null>(null);
+    const navigate = useNavigate();
+
+    // Get the base endpoint based on user role
+    const getBaseEndpoint = () => {
+        return userRole === 'admin' ? '/admin/clients' : '/agent/clients';
+    };
 
     useEffect(() => {
         fetchClients();
-    }, []);
+    }, [userRole]); // Add userRole as dependency to refetch when role changes
 
     const fetchClients = async () => {
         try {
             setLoading(true);
-            const response = await api.get<Client[]>('/admin/clients');
+            const response = await api.get<Client[]>(getBaseEndpoint());
             setClients(response.data);
             setError('');
-        } catch (err) {
-            setError('Failed to fetch clients');
+        } catch (err: any) {
+            if (err.response?.status === 403) {
+                setError('You do not have permission to view clients');
+                setTimeout(() => navigate('/'), 2000);
+            } else {
+                setError('Failed to fetch clients');
+            }
             console.error('Error fetching clients:', err);
         } finally {
             setLoading(false);
@@ -37,10 +54,20 @@ const ClientList = () => {
     const handleDeactivate = async (id: number) => {
         if (window.confirm('Are you sure you want to deactivate this client?')) {
             try {
-                await api.delete(`/admin/clients/${id}`);
+                setIsDeleting(id);
+                await api.delete(`${getBaseEndpoint()}/${id}`);
                 await fetchClients();
-            } catch (err) {
+                setIsDeleting(null);
+            } catch (err: any) {
+                if (err.response?.status === 403) {
+                    setError('You do not have permission to deactivate clients');
+                    setTimeout(() => setError(''), 3000);
+                } else {
+                    setError('Error deactivating client');
+                    setTimeout(() => setError(''), 3000);
+                }
                 console.error('Error deactivating client:', err);
+                setIsDeleting(null);
             }
         }
     };
@@ -52,19 +79,21 @@ const ClientList = () => {
     );
 
     if (loading) {
-        return <div className="flex justify-center items-center h-64">Loading...</div>;
-    }
-
-    if (error) {
         return (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                {error}
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
             </div>
         );
     }
 
     return (
         <div className="w-full">
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {error}
+                </div>
+            )}
+
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Client List</h1>
                 <div className="flex space-x-4">
@@ -110,14 +139,22 @@ const ClientList = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex space-x-2">
-                                    <button className="text-blue-600 hover:text-blue-800">
+                                    <button
+                                        className="text-blue-600 hover:text-blue-800"
+                                        onClick={() => navigate(`${getBaseEndpoint()}/edit/${client.id}`)}
+                                    >
                                         <Edit size={20} />
                                     </button>
                                     <button
                                         className="text-red-600 hover:text-red-800"
                                         onClick={() => handleDeactivate(client.id)}
+                                        disabled={isDeleting === client.id}
                                     >
-                                        <Trash2 size={20} />
+                                        {isDeleting === client.id ? (
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
+                                        ) : (
+                                            <Trash2 size={20} />
+                                        )}
                                     </button>
                                 </div>
                             </td>
