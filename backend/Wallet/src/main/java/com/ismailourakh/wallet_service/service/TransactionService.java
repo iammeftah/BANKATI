@@ -5,7 +5,6 @@ import com.ismailourakh.wallet_service.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class TransactionService {
@@ -16,7 +15,7 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public List<Transaction> getTransactionsByWalletId(UUID walletId) {
+    public List<Transaction> getTransactionsByWalletId(Long walletId) {
         return transactionRepository.findByWalletId(walletId);
     }
 }

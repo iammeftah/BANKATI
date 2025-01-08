@@ -1,0 +1,33 @@
+{
+  "groups": [
+    {
+      "name": "auth.service",
+      "type": "com.ismailourakh.wallet_service.config.AuthServiceProperties",
+      "sourceType": "com.ismailourakh.wallet_service.config.AuthServiceProperties"
+    },
+    {
+      "name": "auth.service.validation",
+      "type": "com.ismailourakh.wallet_service.config.AuthServiceProperties$Validation",
+      "sourceType": "com.ismailourakh.wallet_service.config.AuthServiceProperties",
+      "sourceMethod": "getValidation()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "auth.service.url",
+      "type": "java.lang.String",
+      "sourceType": "com.ismailourakh.wallet_service.config.AuthServiceProperties"
+    },
+    {
+      "name": "auth.service.validation.max-retries",
+      "type": "java.lang.Integer",
+      "sourceType": "com.ismailourakh.wallet_service.config.AuthServiceProperties$Validation"
+    },
+    {
+      "name": "auth.service.validation.retry-delay",
+      "type": "java.lang.Long",
+      "sourceType": "com.ismailourakh.wallet_service.config.AuthServiceProperties$Validation"
+    }
+  ],
+  "hints": []
+}

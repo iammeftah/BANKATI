@@ -8,14 +8,18 @@ import wav.hmed.authentication.dto.AuthenticationResponse;
 import wav.hmed.authentication.dto.PasswordUpdateRequest;
 import wav.hmed.authentication.dto.RegisterRequest;
 import wav.hmed.authentication.service.AuthenticationService;
+import wav.hmed.authentication.service.JwtService;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
     private final AuthenticationService service;
+    private final JwtService jwtService;
 
-    public AuthenticationController(AuthenticationService service) {
+
+    public AuthenticationController(AuthenticationService service, JwtService jwtService) {
         this.service = service;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register/initiate")
@@ -45,5 +49,29 @@ public class AuthenticationController {
     ) {
         service.updatePassword(request.getCurrentPassword(), request.getNewPassword());
         return ResponseEntity.ok("Password updated successfully");
+    }
+
+
+    @GetMapping("/validate")
+    public ResponseEntity<Boolean> validateToken(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam String userId) {
+        try {
+            // Log the incoming request
+            System.out.println("=== Token Validation Request ===");
+            System.out.println("Auth Header: " + authHeader);
+            System.out.println("User ID: " + userId);
+
+            String token = authHeader.replace("Bearer ", "");
+            boolean isValid = jwtService.validateTokenAndUserId(token, userId);
+
+            // Log the result
+            System.out.println("Validation Result: " + isValid);
+
+            return ResponseEntity.ok(isValid);
+        } catch (Exception e) {
+            System.err.println("Validation Error: " + e.getMessage());
+            return ResponseEntity.ok(false);
+        }
     }
 }

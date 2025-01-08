@@ -88,6 +88,9 @@ public class AgentController {
             client.setBalance(0.0); // Initialize balance to 0
 
             Client savedClient = clientRepository.save(client);
+
+
+
             logger.info("Successfully created client with ID: {}", savedClient.getId());
 
             // If we generated a temporary password, include it in the response

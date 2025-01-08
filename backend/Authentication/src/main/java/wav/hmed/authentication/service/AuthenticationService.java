@@ -14,6 +14,9 @@ import wav.hmed.authentication.dto.RegisterRequest;
 import wav.hmed.authentication.entity.User;
 import wav.hmed.authentication.repository.UserRepository;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
@@ -43,6 +46,12 @@ public class AuthenticationService {
 
         // Generate and send OTP
         otpService.generateAndSendOTP(request.getEmail());
+    }
+
+    public String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId().toString());
+        return jwtService.generateToken(claims, user);
     }
 
     public AuthenticationResponse completeRegistration(RegisterRequest request, String otp) {

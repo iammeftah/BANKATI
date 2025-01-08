@@ -1,32 +1,58 @@
-'use client'
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
+import {walletService} from "../../../services/wallet.service";
 
 interface Transaction {
-    date: string
-    description: string
-    amount: number
+    id: number;
+    walletId: string;
+    amount: number;
+    type: string;
+    timestamp: string;
 }
 
 interface VirtualCard {
-    number: string
-    holder: string
-    expires: string
-    type: 'visa' | 'mastercard' | 'amex'
+    number: string;
+    holder: string;
+    expires: string;
+    type: 'visa' | 'mastercard' | 'amex';
 }
 
 export function ClientDashboard() {
-    const [transactions] = useState<Transaction[]>([
-        { date: '16 December 2024', description: 'Salary Deposit', amount: 3000.00 },
-        { date: '15 December 2024', description: 'Grocery Shopping', amount: -75.00 },
-        { date: '14 December 2024', description: 'Online Transfer', amount: -200.00 },
-    ])
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [wallet, setWallet] = useState({ balance: 0 });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     const [virtualCards] = useState<VirtualCard[]>([
         { number: 'XXXX XXXX XXXX 1234', holder: 'JOHN DOE', expires: '12/25', type: 'visa' },
         { number: 'XXXX XXXX XXXX 0004', holder: 'JANE SMITH', expires: '06/26', type: 'mastercard' },
         { number: 'XXXX XXXX XXXX 0005', holder: 'ROBERT BROWN', expires: '09/27', type: 'amex' },
-    ])
+    ]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [walletData, transactionsData] = await Promise.all([
+                    walletService.getWallet(),
+                    walletService.getTransactions()
+                ]);
+
+                setWallet(walletData);
+                setTransactions(transactionsData);
+            } catch (err) {
+                setError('Failed to fetch wallet data');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) return <div className="text-center p-6">Loading...</div>;
+    if (error) return <div className="text-red-500 text-center p-6">{error}</div>;
+
+    const lastTransaction = transactions[0] || null;
 
     return (
         <div className="container mx-auto p-6">
@@ -37,13 +63,21 @@ export function ClientDashboard() {
                     <div className="flex justify-between items-center">
                         <div>
                             <div className="text-sm text-gray-600">Balance</div>
-                            <div className="text-4xl font-bold">$5000.00</div>
+                            <div className="text-4xl font-bold">${wallet.balance.toFixed(2)}</div>
                         </div>
-                        <div className="text-right">
-                            <div className="text-sm text-gray-600">Last Transaction</div>
-                            <div className="text-xl font-semibold text-red-500">-$150.00</div>
-                            <div className="text-sm text-gray-600">16 December 2024</div>
-                        </div>
+                        {lastTransaction && (
+                            <div className="text-right">
+                                <div className="text-sm text-gray-600">Last Transaction</div>
+                                <div className={`text-xl font-semibold ${
+                                    lastTransaction.amount < 0 ? 'text-red-500' : 'text-green-500'
+                                }`}>
+                                    ${Math.abs(lastTransaction.amount).toFixed(2)}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                    {new Date(lastTransaction.timestamp).toLocaleDateString()}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -55,15 +89,17 @@ export function ClientDashboard() {
                             <thead>
                             <tr className="border-b">
                                 <th className="text-left py-3 px-4">DATE</th>
-                                <th className="text-left py-3 px-4">DESCRIPTION</th>
+                                <th className="text-left py-3 px-4">TYPE</th>
                                 <th className="text-right py-3 px-4">AMOUNT</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {transactions.map((transaction, index) => (
-                                <tr key={index} className="border-b">
-                                    <td className="py-3 px-4">{transaction.date}</td>
-                                    <td className="py-3 px-4">{transaction.description}</td>
+                            {transactions.map((transaction) => (
+                                <tr key={transaction.id} className="border-b">
+                                    <td className="py-3 px-4">
+                                        {new Date(transaction.timestamp).toLocaleDateString()}
+                                    </td>
+                                    <td className="py-3 px-4">{transaction.type}</td>
                                     <td className={`py-3 px-4 text-right ${
                                         transaction.amount < 0 ? 'text-red-500' : 'text-green-500'
                                     }`}>
@@ -92,9 +128,6 @@ export function ClientDashboard() {
                             >
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="text-lg font-bold">{card.type.toUpperCase()}</div>
-                                    <div className="w-12 h-12">
-                                        {/* Card network logo placeholder */}
-                                    </div>
                                 </div>
                                 <div className="mb-4 font-mono text-lg">{card.number}</div>
                                 <div className="flex justify-between items-end">
@@ -113,6 +146,7 @@ export function ClientDashboard() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
 
+export default ClientDashboard;

@@ -40,7 +40,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hours
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -48,6 +48,39 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSignInKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            System.err.println("Token validation error: " + e.getMessage()); // Added logging
+            return false;
+        }
+    }
+
+    public boolean validateTokenAndUserId(String token, String userId) {
+        try {
+            if (!isTokenValid(token)) {
+                System.err.println("Token is not valid"); // Added logging
+                return false;
+            }
+            String tokenUserId = extractUserId(token);
+            boolean isValid = userId.equals(tokenUserId);
+            System.out.println("Token userId: " + tokenUserId + ", Requested userId: " + userId + ", Match: " + isValid); // Added logging
+            return isValid;
+        } catch (Exception e) {
+            System.err.println("Token validation error: " + e.getMessage()); // Added logging
+            return false;
+        }
+    }
+
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", String.class));
     }
 
     private boolean isTokenExpired(String token) {

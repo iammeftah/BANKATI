@@ -3,7 +3,6 @@ package com.ismailourakh.wallet_service.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 public class Transaction {
@@ -13,7 +12,7 @@ public class Transaction {
     private Long id;
 
     @Column(nullable = false)
-    private UUID walletId;
+    private Long walletId;
 
     @Column(nullable = false)
     private BigDecimal amount;
@@ -34,11 +33,11 @@ public class Transaction {
         this.id = id;
     }
 
-    public UUID getWalletId() {
+    public Long getWalletId() {
         return walletId;
     }
 
-    public void setWalletId(UUID walletId) {
+    public void setWalletId(Long walletId) {
         this.walletId = walletId;
     }
 
