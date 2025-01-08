@@ -25,3 +25,11 @@ export interface Agent extends User {
     address: string;
     immatriculationNumber: string;
 }
+
+export interface Client extends User {
+    accountType: 'HSSAB1' | 'HSSAB2' | 'HSSAB3';
+    balance: number;
+    status: 'ACTIVE' | 'INACTIVE' | 'PENDING';
+    createdAt: string;
+    updatedAt: string;
+}

@@ -1,5 +1,6 @@
 package wav.hmed.authentication.dto;
 
+import wav.hmed.authentication.entity.Client;
 import wav.hmed.authentication.entity.Role;
 
 public class RegisterRequest {
@@ -16,6 +17,10 @@ public class RegisterRequest {
     private String address;
     private String registrationNumber;
     private String patentNumber;
+
+    // Added Client-specific fields
+    private Client.CeilingType ceilingType;
+    private Double balance;
 
     // Default constructor
     public RegisterRequest() {
@@ -34,6 +39,14 @@ public class RegisterRequest {
     public String getAddress() { return address; }
     public String getRegistrationNumber() { return registrationNumber; }
     public String getPatentNumber() { return patentNumber; }
+    public Client.CeilingType getCeilingType() {
+        return ceilingType;
+    }
+    public Double getBalance() {
+        return balance;
+    }
+
+
 
     // Setters
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -48,6 +61,12 @@ public class RegisterRequest {
     public void setAddress(String address) { this.address = address; }
     public void setRegistrationNumber(String registrationNumber) { this.registrationNumber = registrationNumber; }
     public void setPatentNumber(String patentNumber) { this.patentNumber = patentNumber; }
+    public void setCeilingType(Client.CeilingType ceilingType) {
+        this.ceilingType = ceilingType;
+    }
+    public void setBalance(Double balance) {
+        this.balance = balance;
+    }
 
     @Override
     public String toString() {
