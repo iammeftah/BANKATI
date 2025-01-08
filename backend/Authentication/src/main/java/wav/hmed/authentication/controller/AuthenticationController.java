@@ -22,19 +22,7 @@ public class AuthenticationController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/register/initiate")
-    public ResponseEntity<String> initiateRegistration(@RequestBody RegisterRequest request) {
-        service.initiateRegistration(request);
-        return ResponseEntity.ok("OTP sent to email");
-    }
 
-    @PostMapping("/register/complete")
-    public ResponseEntity<AuthenticationResponse> completeRegistration(
-            @RequestBody RegisterRequest request,
-            @RequestParam String otp
-    ) {
-        return ResponseEntity.ok(service.completeRegistration(request, otp));
-    }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(

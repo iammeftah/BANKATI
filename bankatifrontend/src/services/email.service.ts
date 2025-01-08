@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const EMAIL_URL = 'http://localhost:8093';
+const EMAIL_URL = process.env.EMAIL_URL || 'http://localhost:8093';
+
 
 export const emailService = {
     sendEmail: async (to: string, subject: string, text: string) => {

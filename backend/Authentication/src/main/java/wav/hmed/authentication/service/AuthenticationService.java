@@ -22,31 +22,18 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final OTPService otpService;
 
     @Autowired
     public AuthenticationService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService,
-            OTPService otpService) {
+            JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
-        this.otpService = otpService;
     }
 
-    public void initiateRegistration(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-        if (userRepository.existsByPhone(request.getPhone())) {
-            throw new RuntimeException("Phone number already exists");
-        }
 
-        // Generate and send OTP
-        otpService.generateAndSendOTP(request.getEmail());
-    }
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
@@ -54,24 +41,7 @@ public class AuthenticationService {
         return jwtService.generateToken(claims, user);
     }
 
-    public AuthenticationResponse completeRegistration(RegisterRequest request, String otp) {
-        if (!otpService.validateOTP(request.getEmail(), otp)) {
-            throw new RuntimeException("Invalid OTP");
-        }
 
-        User user = new User();
-        user.setPhone(request.getPhone());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setEmail(request.getEmail());
-        user.setRole(request.getRole());
-
-        User savedUser = userRepository.save(user);
-        String token = jwtService.generateToken(user);
-
-        return new AuthenticationResponse(token, savedUser);
-    }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         User user = userRepository.findByPhone(request.getPhone())

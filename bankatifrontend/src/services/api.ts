@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const AUTH_URL = 'http://localhost:8091/api';
-const WALLET_URL = 'http://localhost:8092/api';
-
+const AUTH_URL = process.env.AUTH_URL || 'http://localhost:8091/api';
+const WALLET_URL = process.env.WALLET_URL || 'http://localhost:8092/api';
 
 
 // Helper function to get token
